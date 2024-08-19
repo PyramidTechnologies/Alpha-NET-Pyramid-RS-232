@@ -1,23 +1,20 @@
 ﻿using System;
-using WixSharp;
 using System.Diagnostics;
-using Microsoft.Deployment.WindowsInstaller;
+using System.IO;
+using WixSharp;
+using File = WixSharp.File;
 
 namespace TestApp.Installer
 {
-    using System.IO;
-    using File = WixSharp.File;
-
     internal class Program
     {
         private static void Main()
         {
-
 #if DEBUG
 #error "Do not distribute Debug builds"
 #endif
-            const string guid = "5976a455-fa1f-44d2-91fa-53cc2beca27f";     // Change for every product!
-            const string outdir = "build";                                  // directory is relative to solution root
+            const string guid = "5976a455-fa1f-44d2-91fa-53cc2beca27f"; // Change for every product!
+            const string outdir = "build"; // directory is relative to solution root
             const string product = "Pyramid RS-232 Test App";
             const string company = "Pyramid Technologies Inc";
             const string binname = "PyramidNETRS232_TestApp.exe";
@@ -37,7 +34,8 @@ namespace TestApp.Installer
                     new Files("*.dll"),
                     new File(binname,
                         new FileShortcut(product, @"%Desktop%") { IconFile = @"icon.ico" },
-                        new FileShortcut(product, @"%ProgramMenu%\" + company + "\\" + product) { IconFile = @"icon.ico" }),
+                        new FileShortcut(product, @"%ProgramMenu%\" + company + "\\" + product)
+                            { IconFile = @"icon.ico" }),
                     new File(config)))
             {
                 SourceBaseDir = rootdir,
@@ -56,9 +54,8 @@ namespace TestApp.Installer
                 GUID = new Guid(guid)
             };
 
-
             // Extract build revision from the file that is compiled into this MSI
-            var version = FileVersionInfo.GetVersionInfo(System.IO.Path.Combine(rootdir, binname));
+            var version = FileVersionInfo.GetVersionInfo(Path.Combine(rootdir, binname));
             project.Version = new Version(version.FileVersion);
 
             project.MajorUpgradeStrategy = MajorUpgradeStrategy.Default;
@@ -70,7 +67,7 @@ namespace TestApp.Installer
             project.LicenceFile = licenceFile;
 
             project.OutDir = outdir;
-            project.BuildMsi(string.Format(@"..\..\..\build\{0}-installer.{1}.msi", product, project.Version));
+            project.BuildMsi($@"..\..\..\build\{product}-installer.{project.Version}.msi");
         }
     }
 }

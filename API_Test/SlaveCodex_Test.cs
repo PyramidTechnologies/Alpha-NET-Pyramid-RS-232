@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PyramidNETRS232;
 
 namespace PyramidNETRS232_Test
@@ -7,7 +6,6 @@ namespace PyramidNETRS232_Test
     [TestClass]
     public class SlaveCodex_Test
     {
-
         [TestMethod]
         public void TestToSlaveMessage()
         {
@@ -28,7 +26,6 @@ namespace PyramidNETRS232_Test
         [TestMethod]
         public void TestGetState()
         {
-
             States state;
             SlaveCodex.SlaveMessage message;
             byte[] testData;
@@ -90,13 +87,11 @@ namespace PyramidNETRS232_Test
             Assert.AreEqual(States.AcceptorFailure, state);
 
             Assert.IsTrue(SlaveCodex.IsCashboxPresent(message));
-
         }
 
         [TestMethod]
         public void TestGetEvent()
         {
-
             Events events;
             SlaveCodex.SlaveMessage message;
             byte[] testData;
@@ -134,7 +129,7 @@ namespace PyramidNETRS232_Test
             message = SlaveCodex.ToSlaveMessage(testData);
 
             events = SlaveCodex.GetEvents(message);
-            Assert.AreEqual(Events.PowerUp, events);          
+            Assert.AreEqual(Events.PowerUp, events);
         }
 
 
@@ -199,8 +194,7 @@ namespace PyramidNETRS232_Test
             message = SlaveCodex.ToSlaveMessage(testData);
 
             credit = SlaveCodex.GetCredit(message);
-            Assert.AreEqual(7, credit);   
+            Assert.AreEqual(7, credit);
         }
-
     }
 }
