@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace PyramidNETRS232_TestApp;
@@ -35,7 +36,7 @@ partial class MainWindow
     /// <summary>
     /// Count of bill type 1.
     /// </summary>
-    internal int Bill1Count
+    public int Bill1Count
     {
         get => _bill1Count;
         set
@@ -48,7 +49,7 @@ partial class MainWindow
     /// <summary>
     /// Count of bill type 2.
     /// </summary>
-    internal int Bill2Count
+    public int Bill2Count
     {
         get => _bill2Count;
         set
@@ -61,7 +62,7 @@ partial class MainWindow
     /// <summary>
     /// Count of bill type 3.
     /// </summary>
-    internal int Bill3Count
+    public int Bill3Count
     {
         get => _bill3Count;
         set
@@ -74,7 +75,7 @@ partial class MainWindow
     /// <summary>
     /// Count of bill type 4.
     /// </summary>
-    internal int Bill4Count
+    public int Bill4Count
     {
         get => _bill4Count;
         set
@@ -87,7 +88,7 @@ partial class MainWindow
     /// <summary>
     /// Count of bill type 5.
     /// </summary>
-    internal int Bill5Count
+    public int Bill5Count
     {
         get => _bill5Count;
         set
@@ -100,7 +101,7 @@ partial class MainWindow
     /// <summary>
     /// Count of bill type 6.
     /// </summary>
-    internal int Bill6Count
+    public int Bill6Count
     {
         get => _bill6Count;
         set
@@ -113,7 +114,7 @@ partial class MainWindow
     /// <summary>
     /// Count of bill type 7.
     /// </summary>
-    internal int Bill7Count
+    public int Bill7Count
     {
         get => _bill7Count;
         set
@@ -126,7 +127,7 @@ partial class MainWindow
     /// <summary>
     /// Cumulative total of all bills in US dollars.
     /// </summary>
-    internal int Total
+    public int Total
     {
         get => _total;
         set
@@ -138,12 +139,9 @@ partial class MainWindow
 
     #endregion
 
-    /// <summary>
-    /// Adds value of specified bill to the total and returns the value.
-    /// </summary>
-    internal int AddBillValue(int bill)
+    private void ApexValidator_OnCreditIndexReported(object? sender, int creditIndex)
     {
-        switch (bill)
+        switch (creditIndex)
         {
             case 1:
                 Bill1Count++;
@@ -167,12 +165,12 @@ partial class MainWindow
                 Bill7Count++;
                 break;
             default:
-                // An illegal value was received.
-                return 0;
+                Console.WriteLine("Failed to add value of bill {0}.", creditIndex);
+                return;
         }
 
-        var value = UsdBillValues[bill];
+        var value = UsdBillValues[creditIndex];
         Total += value;
-        return value;
+        Console.WriteLine("Received bill {0} and added ${1} to total", creditIndex, value);
     }
 }

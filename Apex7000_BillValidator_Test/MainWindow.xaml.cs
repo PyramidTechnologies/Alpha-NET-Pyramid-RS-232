@@ -1,49 +1,70 @@
 ﻿using PTI.Rs232Validator;
+using PTI.Rs232Validator.Providers;
 using System;
+using System.ComponentModel;
 using System.IO.Ports;
 using System.Windows;
+using System.Windows.Input;
 
 namespace PyramidNETRS232_TestApp;
 
+// This portion implements INotifyPropertyChanged and handles the connection to an RS-232 bill acceptor.
 /// <summary>
-/// Interaction logic for MainWindow.xaml
+/// Main window of application.
 /// </summary>
-public partial class MainWindow
+public partial class MainWindow : INotifyPropertyChanged
 {
-    private Rs232Config? _rsr232Config;
-    private ApexValidator? _apexValidator;
-    
     public MainWindow()
     {
-        DataContext = this;
         InitializeComponent();
     }
 
-    /// Simple UI listeners
+    public const string SelectPortText = "Select Port";
+    public const string ConnectText = "Connect";
+    public const string DisconnectText = "Disconnect";
+    public const string PauseText = "Pause";
+    public const string ResumeText = "Resume";
 
-    private void btnReset_Click(object sender, RoutedEventArgs e)
+    private string _portName = string.Empty;
+    private bool _isConnected;
+
+    /// <inheritdoc/>
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public bool IsConnected
     {
-        if (_apexValidator is null)
+        get => _isConnected;
+        set
         {
-            return;
+            _isConnected = value;
+            NotifyPropertyChanged(nameof(IsConnected));
         }
-        
-        _apexValidator.StopPollingLoop();
-        _apexValidator.StartPollingLoop();
     }
 
+    /// <inheritdoc cref="PTI.Rs232Validator.Rs232Config"/>
+    internal Rs232Config? Rs232Config { get; set; }
 
-    private void chkEscrowMode_Checked(object sender, RoutedEventArgs e)
+    /// <inheritdoc cref="PTI.Rs232Validator.ApexValidator"/>
+    internal ApexValidator? ApexValidator { get; set; }
+
+    private void NotifyPropertyChanged(string propertyName)
     {
-        IsEscrowMode = true;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    private void chkEscrowMode_Unchecked(object sender, RoutedEventArgs e)
+    private void DoOnUIThread(Action action)
     {
-        IsEscrowMode = false;
+        if (!Dispatcher.CheckAccess())
+        {
+            Dispatcher.Invoke(action);
+        }
+        else
+        {
+            action.Invoke();
+        }
     }
 
-    private void AvailablePorts_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+    private void AvailablePorts_MouseLeave(object sender, MouseEventArgs e)
     {
         AvailablePorts.ItemsSource = SerialPort.GetPortNames();
     }
@@ -53,44 +74,100 @@ public partial class MainWindow
         AvailablePorts.ItemsSource = SerialPort.GetPortNames();
     }
 
-    private void ed_Changed(object sender, RoutedEventArgs e)
+    private void ConnectButton_Click(object sender, RoutedEventArgs e)
     {
-        if (_rsr232Config is null)
+        if (IsConnected)
+        {
+            ApexValidator?.StopPollingLoop();
+            IsConnected = false;
+            ConnectButton.Content = ConnectText;
+            return;
+        }
+        
+        if (string.IsNullOrEmpty(AvailablePorts.Text) || AvailablePorts.Text == SelectPortText)
+        {
+            MessageBox.Show("Please select a port.");
+            return;
+        }
+        
+        if (_portName != AvailablePorts.Text)
+        {
+            ApexValidator?.StopPollingLoop();
+            ApexValidator?.Dispose();
+        }
+        
+        _portName = AvailablePorts.Text;
+        var usbSerialProvider = new UsbSerialProvider(_portName);
+        Rs232Config = new Rs232Config(usbSerialProvider, Logger)
+        {
+            IsEscrowMode = IsEscrowMode
+        };
+        ApexValidator = new ApexValidator(Rs232Config);
+
+        // Visit MainWindow.StatesAndEvents.cs for more information.
+        ApexValidator.OnStateChanged += ApexValidator_OnStateChanged;
+        ApexValidator.OnEventReported += ApexValidator_OnEventReported;
+        ApexValidator.OnCashBoxAttached += Validator_CashBoxAttached;
+        ApexValidator.OnCashBoxRemoved += Validator_CashBoxRemoved;
+
+        // Visit MainWindow.Escrow.cs for more information.
+        IsEscrowMode = true;
+        ApexValidator.OnBillInEscrow += ApexValidator_OnBillInEscrow;
+
+        // Visit MainWindow.Bank for more information.
+        ApexValidator.OnCreditIndexReported += ApexValidator_OnCreditIndexReported;
+
+        // Start the RS232 polling loop.
+        IsConnected = ApexValidator.StartPollingLoop();
+        if (IsConnected)
+        {
+            ConnectButton.Content = DisconnectText;
+        }
+        else
+        {
+            MessageBox.Show("Failed to connect to the Apex validator.");
+        }
+    }
+
+    private void PauseButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (ApexValidator is null)
         {
             return;
         }
 
-        var enableMask = 0;
-        enableMask |= chk1.IsChecked is not null && chk1.IsChecked.Value ? 1 << 0 : 0;
-        enableMask |= chk2.IsChecked is not null && chk2.IsChecked.Value ? 1 << 1 : 0;
-        enableMask |= chk3.IsChecked is not null && chk3.IsChecked.Value ? 1 << 2 : 0;
-        enableMask |= chk4.IsChecked is not null && chk4.IsChecked.Value ? 1 << 3 : 0;
-        enableMask |= chk5.IsChecked is not null && chk5.IsChecked.Value ? 1 << 4 : 0;
-        enableMask |= chk6.IsChecked is not null && chk6.IsChecked.Value ? 1 << 5 : 0;
-        enableMask |= chk7.IsChecked is not null && chk7.IsChecked.Value ? 1 << 6 : 0;
-        
-        _rsr232Config.EnableMask = (byte)enableMask;
+        if (ApexValidator.IsPaused)
+        {
+            ApexValidator.ResumeAcceptance();
+            btnResumePause.Content = PauseText;
+        }
+        else
+        {
+            ApexValidator.PauseAcceptance();
+            btnResumePause.Content = ResumeText;
+        }
     }
 
-    private void sldPoll_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    private void ResetButton_Click(object sender, RoutedEventArgs e)
     {
-        if (_rsr232Config == null || txtPoll == null)
+        if (ApexValidator is null)
+        {
+            return;
+        }
+
+        ApexValidator.StopPollingLoop();
+        ApexValidator.StartPollingLoop();
+    }
+    
+    private void PollSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (Rs232Config is null)
         {
             return;
         }
 
         var ms = (int)e.NewValue;
-        _rsr232Config.PollingPeriod = TimeSpan.FromMicroseconds(ms);
-        txtPoll.Text = $"{ms} ms";
-    }
-
-    private void HighlightSequence(int index)
-    {
-        ConsoleLogger.SelectedIndex = index;
-    }
-
-    private void ConsoleLogger_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-    {
-        HighlightSequence(ConsoleLogger.SelectedIndex);
+        Rs232Config.PollingPeriod = TimeSpan.FromMicroseconds(ms);
+        PollTextBox.Text = $"{ms} ms";
     }
 }
