@@ -9,8 +9,8 @@
                          To="1.1" Duration="0:0:.1" BeginTime="0:0:0.5" AutoReverse="True" RepeatBehavior="2x" />
     </Storyboard>
 
-    <!-- Float and fade lable -->
-    <Storyboard x:Key="FloatAndFade">
+    <!-- Float and fade label -->
+    <Storyboard x:Key="FloatAndFadeStoryboard">
         <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)">
             <SplineDoubleKeyFrame KeyTime="0:0:0" Value="0" />
             <SplineDoubleKeyFrame KeyTime="0:0:0.5" Value="1" />
@@ -21,15 +21,14 @@
         </DoubleAnimationUsingKeyFrames>
     </Storyboard>
 
-    <Style x:Key="GroupHeader_TextBlock" TargetType="TextBlock">
+    <Style x:Key="GroupHeaderTextBlock" TargetType="TextBlock">
         <Setter Property="FontSize" Value="12" />
         <Setter Property="FontWeight" Value="Normal" />
         <Setter Property="Margin" Value="5" />
         <Setter Property="Foreground" Value="Black" />
-        <Setter Property="FontWeight" Value="Medium" />
     </Style>
 
-    <Style x:Key="GroupHeader_Label" TargetType="Label">
+    <Style x:Key="GroupHeaderLabel" TargetType="Label">
         <Setter Property="FontSize" Value="16" />
         <Setter Property="FontWeight" Value="Light" />
         <Setter Property="Margin" Value="1" />
@@ -54,7 +53,7 @@
         </Setter>
     </Style>
 
-    <Style x:Key="button_flat_round" BasedOn="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" TargetType="Button">
+    <Style x:Key="FlatRoundButton" BasedOn="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" TargetType="Button">
         <Setter Property="Background" Value="LightGray" />
         <Setter Property="Foreground" Value="Black" />
         <Setter Property="Height" Value="32" />
@@ -93,7 +92,7 @@
         </Style.Triggers>
     </Style>
 
-    <Style x:Key="button_flat_jumpy" TargetType="Button">
+    <Style x:Key="FlatJumpyButton" TargetType="Button">
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Background" Value="#FF3E1D66" />
@@ -135,16 +134,16 @@
         </Style.Triggers>
     </Style>
 
-    <Style x:Key="combo_flat" TargetType="{x:Type ComboBox}">
+    <Style x:Key="FlatComboBox" TargetType="{x:Type ComboBox}">
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="MinWidth" Value="60" />
-        <Setter Property="UIElement.SnapsToDevicePixels" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
         <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
         <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
         <Setter Property="TextElement.Foreground" Value="Black" />
-        <Setter Property="FrameworkElement.FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="BorderBrush" Value="Black" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Background" Value="White" />

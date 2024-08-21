@@ -139,6 +139,9 @@ partial class MainWindow
 
     #endregion
 
+    /// <summary>
+    /// Increments the bill count and total when a credit is reported.
+    /// </summary>
     private void ApexValidator_OnCreditIndexReported(object? sender, int creditIndex)
     {
         switch (creditIndex)

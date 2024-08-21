@@ -6,12 +6,9 @@ using System.Windows.Media;
 
 namespace PyramidNETRS232_TestApp;
 
-// This portion... TODO: Finish.
+// This portion displays the current state and latest event of an Apex validator.
 partial class MainWindow
 {
-    public const string StateTagText = "State";
-    public const string EventTagText = "Event";
-
     private static readonly SolidColorBrush InactiveBrush = new(Colors.LightGray);
     private static readonly SolidColorBrush CashBoxAttachedBrush = new(Colors.LightYellow);
     private static readonly SolidColorBrush ActiveEventBrush = new(Colors.LightGreen);
@@ -28,9 +25,9 @@ partial class MainWindow
         get => _state;
         set
         {
-            DoOnUIThread(() =>
+            DoOnUiThread(() =>
             {
-                DeactivateButtonsWithTag(StateTagText);
+                DeactivateButtonsWithTag(_stateTagText);
                 switch (value)
                 {
                     case Rs232State.Idling:
@@ -73,9 +70,9 @@ partial class MainWindow
         get => _event;
         set
         {
-            DoOnUIThread(() =>
+            DoOnUiThread(() =>
             {
-                DeactivateButtonsWithTag(EventTagText);
+                DeactivateButtonsWithTag(_eventTagText);
                 switch (value)
                 {
                     case Rs232Event.Stacked:
@@ -111,13 +108,13 @@ partial class MainWindow
         Event = rs232Event;
     }
 
-    private void Validator_CashBoxAttached(object? sender, EventArgs e)
+    private void ApexValidator_CashBoxAttached(object? sender, EventArgs e)
     {
         Console.WriteLine("Cash box has been attached.");
         CashBoxButton.Background = CashBoxAttachedBrush;
     }
 
-    private void Validator_CashBoxRemoved(object? sender, EventArgs e)
+    private void ApexValidator_CashBoxRemoved(object? sender, EventArgs e)
     {
         Console.WriteLine("Cash box has been removed.");
         CashBoxButton.Background = InactiveBrush;

@@ -3,7 +3,7 @@ using System.Windows;
 
 namespace PyramidNETRS232_TestApp;
 
-// This portion... TODO: Finish.
+// This portion processes bills in escrow.
 partial class MainWindow
 {
     private static readonly object ManualLock = new();
@@ -45,12 +45,15 @@ partial class MainWindow
         }
     }
 
+    /// <summary>
+    /// Prepares to handle a bill in escrow.
+    /// </summary>
     private void ApexValidator_OnBillInEscrow(object? sender, int creditIndex)
     {
         _lastCreditIndex = creditIndex;
         Console.WriteLine("Received bill {0} in escrow.", _lastCreditIndex);
 
-        DoOnUIThread(() =>
+        DoOnUiThread(() =>
         {
             // Rejects are triggered by:
             // 1) Invalid note
@@ -77,6 +80,9 @@ partial class MainWindow
         IsEscrowMode = false;
     }
 
+    /// <summary>
+    /// Notifies <see cref="ApexValidator"/> to stack the bill in escrow.
+    /// </summary>
     private void StackButton_Click(object sender, RoutedEventArgs e)
     {
         if (ApexValidator is null)
@@ -101,6 +107,9 @@ partial class MainWindow
         }
     }
 
+    /// <summary>
+    /// Notifies <see cref="ApexValidator"/> to return the bill in escrow.
+    /// </summary>
     private void ReturnButton_Click(object sender, RoutedEventArgs e)
     {
         if (ApexValidator is null)

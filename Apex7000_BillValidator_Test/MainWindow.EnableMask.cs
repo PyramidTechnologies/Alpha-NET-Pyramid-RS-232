@@ -2,9 +2,12 @@
 
 namespace PyramidNETRS232_TestApp;
 
-// This portion
+// This portion alters the enable mask of the RS-232 configuration.
 public partial class MainWindow
 {
+    /// <summary>
+    /// Alters the enable mask of <see cref="Rs232Config"/>.
+    /// </summary>
     private void EnabledCheckbox_Changed(object sender, RoutedEventArgs e)
     {
         if (Rs232Config is null)

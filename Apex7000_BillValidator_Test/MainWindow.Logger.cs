@@ -1,22 +1,47 @@
 ﻿using PTI.Rs232Validator;
 using System;
 using System.Collections.ObjectModel;
+using System.Windows.Controls;
 
 namespace PyramidNETRS232_TestApp;
 
-// This portion... TODO: Finish.
-public partial class MainWindow
+// This portion provides logging.
+public partial class MainWindow : ILogger
 {
-    public Logger Logger { get; } = new();
-    
-    private void HighlightSequence(int index)
+    public ObservableCollection<LogEntry> LogEntries { get; } = [];
+        
+    public void Trace(string format, params object[] args)
     {
-        LoggerListView.SelectedIndex = index;
+        // Do nothing.
+    }
+
+    public void Debug(string format, params object[] args)
+    {
+        DoOnUiThread(() =>
+        {
+            LogEntries.Add(new LogEntry(LogLevel.Debug, DateTimeOffset.Now, string.Format(format, args)));
+        });
+    }
+
+    public void Info(string format, params object[] args)
+    {
+        DoOnUiThread(() =>
+        {
+            LogEntries.Add(new LogEntry(LogLevel.Info, DateTimeOffset.Now, string.Format(format, args)));
+        });
+    }
+
+    public void Error(string format, params object[] args)
+    {
+        DoOnUiThread(() =>
+        {
+            LogEntries.Add(new LogEntry(LogLevel.Error, DateTimeOffset.Now, string.Format(format, args)));
+        });
     }
     
-    private void LoggerListView_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    private void LoggerListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        HighlightSequence(LoggerListView.SelectedIndex);
+        LoggerListView.SelectedIndex = LoggerListView.SelectedIndex;
     }
 }
 
@@ -29,28 +54,3 @@ public enum LogLevel
 }
     
 public record LogEntry(LogLevel Level, DateTimeOffset Timestamp, string Message);
-
-public class Logger : ILogger
-{
-    public ObservableCollection<LogEntry> LogEntries { get; } = new();
-        
-    public void Trace(string format, params object[] args)
-    {
-        LogEntries.Add(new LogEntry(LogLevel.Trace, DateTimeOffset.Now, string.Format(format, args)));
-    }
-
-    public void Debug(string format, params object[] args)
-    {
-        LogEntries.Add(new LogEntry(LogLevel.Debug, DateTimeOffset.Now, string.Format(format, args)));
-    }
-
-    public void Info(string format, params object[] args)
-    {
-        LogEntries.Add(new LogEntry(LogLevel.Info, DateTimeOffset.Now, string.Format(format, args)));
-    }
-
-    public void Error(string format, params object[] args)
-    {
-        LogEntries.Add(new LogEntry(LogLevel.Error, DateTimeOffset.Now, string.Format(format, args)));
-    }
-}
