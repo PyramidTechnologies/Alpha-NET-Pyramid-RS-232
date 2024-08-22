@@ -14,7 +14,6 @@
     <Resource Include="icon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="log4net" Version="2.0.17" />
     <PackageReference Include="PTI.Rs232Validator" Version="1.1.1" />
     <PackageReference Include="ReactiveUI" Version="20.1.1" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />

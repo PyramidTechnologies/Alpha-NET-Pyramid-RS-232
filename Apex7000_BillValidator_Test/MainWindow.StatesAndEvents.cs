@@ -111,13 +111,13 @@ partial class MainWindow
     private void ApexValidator_CashBoxAttached(object? sender, EventArgs e)
     {
         Console.WriteLine("Cash box has been attached.");
-        CashBoxButton.Background = CashBoxAttachedBrush;
+        DoOnUiThread(() => CashBoxButton.Background = CashBoxAttachedBrush);
     }
 
     private void ApexValidator_CashBoxRemoved(object? sender, EventArgs e)
     {
         Console.WriteLine("Cash box has been removed.");
-        CashBoxButton.Background = InactiveBrush;
+        DoOnUiThread(() => CashBoxButton.Background = InactiveBrush);
     }
 
     private void DeactivateButtonsWithTag(string tagText)

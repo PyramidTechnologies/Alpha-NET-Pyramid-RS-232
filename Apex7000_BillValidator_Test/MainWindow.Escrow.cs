@@ -70,16 +70,6 @@ partial class MainWindow
         });
     }
 
-    private void EscrowCheckbox_Checked(object sender, RoutedEventArgs e)
-    {
-        IsEscrowMode = true;
-    }
-
-    private void EscrowCheckbox_Unchecked(object sender, RoutedEventArgs e)
-    {
-        IsEscrowMode = false;
-    }
-
     /// <summary>
     /// Notifies <see cref="ApexValidator"/> to stack the bill in escrow.
     /// </summary>

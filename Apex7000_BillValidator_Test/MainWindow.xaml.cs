@@ -2,7 +2,6 @@
 using System;
 using System.ComponentModel;
 using System.IO.Ports;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -132,17 +131,17 @@ public partial class MainWindow : INotifyPropertyChanged
         ApexValidator.OnLostConnection += ApexValidator_OnLostConnection;
 
         // Visit MainWindow.StatesAndEvents.cs for more information.
-        // ApexValidator.OnStateChanged += ApexValidator_OnStateChanged;
-        // ApexValidator.OnEventReported += ApexValidator_OnEventReported;
-        // ApexValidator.OnCashBoxAttached += ApexValidator_CashBoxAttached;
-        // ApexValidator.OnCashBoxRemoved += ApexValidator_CashBoxRemoved;
+        ApexValidator.OnStateChanged += ApexValidator_OnStateChanged;
+        ApexValidator.OnEventReported += ApexValidator_OnEventReported;
+        ApexValidator.OnCashBoxAttached += ApexValidator_CashBoxAttached;
+        ApexValidator.OnCashBoxRemoved += ApexValidator_CashBoxRemoved;
 
         // Visit MainWindow.Escrow.cs for more information.
         IsEscrowMode = true;
-        // ApexValidator.OnBillInEscrow += ApexValidator_OnBillInEscrow;
+        ApexValidator.OnBillInEscrow += ApexValidator_OnBillInEscrow;
 
         // Visit MainWindow.Bank for more information.
-        // ApexValidator.OnCreditIndexReported += ApexValidator_OnCreditIndexReported;
+        ApexValidator.OnCreditIndexReported += ApexValidator_OnCreditIndexReported;
 
         // Start the RS232 polling loop.
         IsConnected = ApexValidator.StartPollingLoop();
@@ -195,8 +194,11 @@ public partial class MainWindow : INotifyPropertyChanged
         }
 
         ApexValidator.StopPollingLoop();
-        await Task.Delay(Rs232Config.PollingPeriod.Milliseconds * 2);
-        IsConnected = ApexValidator.StartPollingLoop();
+        await Task.Delay(Rs232Config.PollingPeriod);
+        while (ApexValidator.StartPollingLoop())
+        {
+            await Task.Delay(Rs232Config.PollingPeriod);
+        }
     }
 
     /// <summary>
@@ -211,6 +213,6 @@ public partial class MainWindow : INotifyPropertyChanged
 
         var ms = (int)e.NewValue;
         Rs232Config.PollingPeriod = TimeSpan.FromMilliseconds(ms);
-        PollTextBox.Text = $"{ms} ms";
+        PollTextBox.Text = ms.ToString();
     }
 }

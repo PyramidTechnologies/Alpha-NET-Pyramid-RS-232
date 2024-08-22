@@ -78,8 +78,7 @@
             <StatusBarItem Grid.Column="3">
                 <CheckBox x:Name="EscowModeCheckbox"
                           Content="Escrow Mode"
-                          IsChecked="{Binding IsEscrowMode, Mode=OneWay, IsAsync=True}"
-                          Checked="EscrowCheckbox_Checked" Unchecked="EscrowCheckbox_Unchecked" />
+                          IsChecked="{Binding IsEscrowMode, Mode=TwoWay, IsAsync=True}" />
             </StatusBarItem>
 
             <StatusBarItem Grid.Column="4">
